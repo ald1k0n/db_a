@@ -1,0 +1,6 @@
+export type {IPerson, IPersonMinified} from './IPerson'
+export type {ICommand} from './ICommand'
+export type {IFile} from './IFile'
+export type {IHistory} from './IHistory'
+export type {ILink} from './ILink'
+export type {IUser, UserRole} from './IUser'
