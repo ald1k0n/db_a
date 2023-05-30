@@ -67,8 +67,9 @@ export const HistoryItem: FC<HistoryProp> = ({ item }) => {
             >
               <div className={"grid grid-cols-4 text-sm items-center px-4"}>
                 <h1 className={"col-start-2"}>Всего в списке:</h1>
-                <h1>Доставлено:</h1>
                 <h1>Не доставлено:</h1>
+
+                <h1>Доставлено:</h1>
               </div>
               {(item.notificationMethod.toString() ===
                 notificationMethod.both.toString() ||

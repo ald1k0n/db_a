@@ -18,12 +18,13 @@ export const History = () => {
   const { userToken } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    (async function hist() {
+    function hist() {
       if (userToken)
-        await trigger("").then(({ data }) => {
+        trigger("").then(({ data }) => {
           setData(data!);
         });
-    })();
+    }
+    hist();
   }, [trigger, data, userToken]);
 
   const clickHandler = () => {
