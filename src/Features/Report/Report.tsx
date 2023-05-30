@@ -334,7 +334,7 @@ export const Report = (props: ReportProp) => {
                           <h1
                             className={`${StatusCode(person.callStatus).color}`}
                           >
-                            {StatusCode(person.callStatus).message}
+                            {person?.callStatus}
                           </h1>
                         </div>
                         <div>
@@ -366,7 +366,7 @@ export const Report = (props: ReportProp) => {
                           <h1
                             className={`${StatusCode(person.callStatus).color}`}
                           >
-                            {StatusCode(person.smsStatus).message}
+                            {person?.smsStatus}
                           </h1>
                         </div>
                         <div>
