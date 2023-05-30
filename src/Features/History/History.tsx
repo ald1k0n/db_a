@@ -20,9 +20,11 @@ export const History = () => {
   useEffect(() => {
     function hist() {
       if (userToken)
-        trigger("").then(({ data }) => {
-          setData(data!);
-        });
+        trigger("")
+          .then(({ data }) => {
+            setData(data!);
+          })
+          .catch((err) => console.error(err));
     }
     hist();
   }, [trigger, data, userToken]);

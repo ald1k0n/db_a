@@ -74,8 +74,9 @@ export const Report = (props: ReportProp) => {
               )}
             >
               <h1 className={"col-start-2"}>Всего в списке:</h1>
-              <h1>Доставлено:</h1>
+
               <h1>Не доставлено:</h1>
+              <h1>Доставлено:</h1>
             </div>
             {(report.history.notificationMethod.toString() ===
               notificationMethod.both.toString() ||
