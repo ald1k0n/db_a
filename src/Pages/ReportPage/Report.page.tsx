@@ -66,7 +66,7 @@ export const ReportPage = () => {
               </div>
             </div>
           </div>
-          <Report report={result.data} />
+          <Report report={result.data} count={result?.data?.people?.length} />
         </>
       )}
     </section>

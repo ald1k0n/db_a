@@ -10,9 +10,14 @@ import {
   StatusCode,
 } from "../../Shared";
 import { HiCheck } from "react-icons/hi";
+import {
+  translateToRussianCallStatuses,
+  translateToRussianSMSCodes,
+} from "Shared/lib/const/statusCode";
 
 type ReportProp = {
   report: ReportResponse;
+  count: Number;
 };
 
 export const Report = (props: ReportProp) => {
@@ -20,7 +25,19 @@ export const Report = (props: ReportProp) => {
   const [smsStatus, setSmsStatus] = useState(0);
   const [callStatus, setCallStatus] = useState(0);
   const [query, setQuery] = useState("");
-
+  // console.log(props.count);
+  const [successfullCalls] = useState<number>(
+    report.people.filter(
+      //@ts-ignore
+      (person) => person.callStatus === "success"
+    ).length
+  );
+  const [deliveredSMS] = useState<number>(
+    report.people.filter(
+      //@ts-ignore
+      (person) => person.smsStatus === "delivered"
+    ).length
+  );
   let filteredPersons = report.people;
   filteredPersons = filteredPersons.filter((person) => {
     return (
@@ -73,10 +90,10 @@ export const Report = (props: ReportProp) => {
                 "grid-cols-4 grid text-sm items-center px-4"
               )}
             >
-              <h1 className={"col-start-2"}>Всего в списке:</h1>
+              <h1 className={"col-start-2"}>{`Всего в списке:  `}</h1>
+              <h1>Доставлено:</h1>
 
               <h1>Не доставлено:</h1>
-              <h1>Доставлено:</h1>
             </div>
             {(report.history.notificationMethod.toString() ===
               notificationMethod.both.toString() ||
@@ -84,21 +101,17 @@ export const Report = (props: ReportProp) => {
                 notificationMethod.call.toString()) && (
               <div className={"grid grid-cols-4 items-center px-4 bg-gray-100"}>
                 <div>Звонок</div>
-                <div>{report.history.statisctics.totalCalls} </div>
+                <div>{`${props?.count}`}</div>
                 <div>
-                  {report.history.statisctics.successfulCalls} (
-                  {(
-                    (report.history.statisctics.successfulCalls /
-                      report.history.statisctics.totalCalls) *
-                    100
-                  ).toFixed(1)}
+                  {successfullCalls} (
+                  {((successfullCalls / Number(props.count)) * 100).toFixed(1)}
                   %)
                 </div>
                 <div>
-                  {report.history.statisctics.unSuccessfulCalls} (
+                  {`${Number(props.count) - successfullCalls}`} (
                   {(
-                    (report.history.statisctics.unSuccessfulCalls /
-                      report.history.statisctics.totalCalls) *
+                    ((Number(props.count) - successfullCalls) /
+                      Number(props.count)) *
                     100
                   ).toFixed(1)}
                   %)
@@ -111,21 +124,17 @@ export const Report = (props: ReportProp) => {
                 notificationMethod.sms.toString()) && (
               <div className={"grid grid-cols-4 items-center px-4 bg-gray-100"}>
                 <div>SMS</div>
-                <div>{report.history.statisctics.totalSMS} </div>
+                <div>{`${props?.count}`} </div>
                 <div>
-                  {report.history.statisctics.successfulSMS} (
-                  {(
-                    (report.history.statisctics.successfulSMS /
-                      report.history.statisctics.totalSMS) *
-                    100
-                  ).toFixed(1)}
+                  {deliveredSMS} (
+                  {((deliveredSMS / Number(props.count)) * 100).toFixed(1)}
                   %)
                 </div>
                 <div>
-                  {report.history.statisctics.unSuccessfullSMS} (
+                  {Number(props.count) - deliveredSMS} (
                   {(
-                    (report.history.statisctics.unSuccessfullSMS /
-                      report.history.statisctics.totalSMS) *
+                    ((Number(props.count) - deliveredSMS) /
+                      Number(props.count)) *
                     100
                   ).toFixed(1)}
                   %)
@@ -268,9 +277,10 @@ export const Report = (props: ReportProp) => {
                 report.history.notificationMethod.toString() ===
                   notificationMethod.both.toString()
                   ? "grid-cols-8"
-                  : "grid-cols-5"
+                  : "grid-cols-6"
               )}
             >
+              <h1>ID</h1>
               <h1>ФИО</h1>
               <h1>Телефон</h1>
               {(report.history.notificationMethod.toString() ===
@@ -305,7 +315,7 @@ export const Report = (props: ReportProp) => {
               )}
             </div>
             <hr className={"border-gray-900"} />
-            {filteredPersons.map((person) => {
+            {filteredPersons.map((person, idx) => {
               return (
                 <div key={person.id}>
                   <div
@@ -314,9 +324,10 @@ export const Report = (props: ReportProp) => {
                       report.history.notificationMethod.toString() ===
                         notificationMethod.both.toString()
                         ? "grid-cols-8"
-                        : "grid-cols-5"
+                        : "grid-cols-6"
                     )}
                   >
+                    <div>{idx + 1}</div>
                     <div>
                       {getFullName(
                         person.firstName,
@@ -334,7 +345,10 @@ export const Report = (props: ReportProp) => {
                           <h1
                             className={`${StatusCode(person.callStatus).color}`}
                           >
-                            {person?.callStatus}
+                            {translateToRussianCallStatuses(
+                              //@ts-ignore
+                              person?.callStatus
+                            )}
                           </h1>
                         </div>
                         <div>
@@ -366,7 +380,10 @@ export const Report = (props: ReportProp) => {
                           <h1
                             className={`${StatusCode(person.callStatus).color}`}
                           >
-                            {person?.smsStatus}
+                            {translateToRussianSMSCodes(
+                              //@ts-ignore
+                              person?.smsStatus
+                            )}
                           </h1>
                         </div>
                         <div>

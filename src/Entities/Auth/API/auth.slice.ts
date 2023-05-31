@@ -29,7 +29,7 @@ const slice = createSlice({
       state.user = action.payload;
     },
     setToken: (state, action) => {
-      console.log(action.payload);
+      // console.log(action.payload);
       state.userToken = action.payload;
     },
   },
