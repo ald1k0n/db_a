@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { redirect, useParams } from "react-router";
 import { historyAPI } from "../../Entities/History";
 import { Loading } from "../../Shared";
@@ -26,6 +26,8 @@ export const ReportPage = () => {
     }
   }, [reportID, trigger]);
 
+  const [reportData, setReportData] = useState<any[] | null>(null);
+
   return (
     <section className={"grow flex flex-col"}>
       {result.isLoading && <Loading />}
@@ -41,7 +43,10 @@ export const ReportPage = () => {
                 {/*<button onClick={()=>trigger({id: reportID})}>
                                     <HiRefresh className={'h-6 w-6'}/>
                                 </button>*/}
-                <GenerateExcelButtons data={result.data} />
+                <GenerateExcelButtons
+                  reportData={reportData}
+                  data={result.data}
+                />
                 <ReactToPrint
                   trigger={() => (
                     <button>
@@ -66,7 +71,11 @@ export const ReportPage = () => {
               </div>
             </div>
           </div>
-          <Report report={result.data} count={result?.data?.people?.length} />
+          <Report
+            setReportData={setReportData}
+            report={result.data}
+            count={result?.data?.people?.length}
+          />
         </>
       )}
     </section>

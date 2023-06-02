@@ -8,25 +8,36 @@ import {
   notificationMethod,
   StatusCode,
 } from "Shared";
+import {
+  translateToRussianCallStatuses,
+  translateToRussianSMSCodes,
+} from "Shared/lib/const/statusCode";
 import * as XLSX from "xlsx";
 
 type GenerateExcel = {
-  data: ReportResponse;
+  data: ReportResponse | any;
+  reportData: any;
 };
 
-export const GenerateExcelButtons = ({ data }: GenerateExcel) => {
+export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
   const [sheetData, setSheetData] = useState<ReportResponse>(data);
   useEffect(() => {
-    setSheetData(data);
-  }, [data]);
+    if (data) {
+      const updatedSheetData = { ...data, people: reportData };
+      setSheetData(updatedSheetData);
+    }
+  }, [data, reportData]);
   const handleGenerateExcel = () => {
     var wb = XLSX.utils.book_new(),
       ws = XLSX.utils.json_to_sheet(generateExcel(sheetData));
 
     XLSX.utils.book_append_sheet(wb, ws, "Лист 1");
-    XLSX.writeFile(
+    XLSX?.writeFile(
       wb,
-      `Отчет за ${format(new Date(data.history.createdAt), "dd MM yyyy")}.xlsx`
+      `Отчет за ${format(
+        new Date(data?.history?.createdAt),
+        "dd MM yyyy"
+      )}.xlsx`
     );
   };
   return (
@@ -39,19 +50,21 @@ export const GenerateExcelButtons = ({ data }: GenerateExcel) => {
 const generateExcel = (data: ReportResponse): IPersonMinified[] => {
   let result: IPersonMinified[] = [];
   if (
-    data.history.notificationMethod.toString() ===
-    notificationMethod.both.toString()
+    data?.history?.notificationMethod?.toString() ===
+    notificationMethod?.both.toString()
   ) {
     data.people.forEach((person) => {
       result.push({
         ФИО: getFullName(person.firstName, person.lastName, person.middleName),
         телефон: person.telephone,
-        "статус смс": StatusCode(person.smsStatus).message,
+        //@ts-ignore
+        "статус смс": translateToRussianSMSCodes(person.smsStatus),
         "дата отправки смс": person.smsSendingTime,
         "дата доставки смс": person.smsDeliveryTime.Valid
           ? person.smsDeliveryTime.Time
           : "--.--.-- / --:--",
-        "статус звонка": StatusCode(person.callStatus).message,
+        //@ts-ignore
+        "статус звонка": translateToRussianCallStatuses(person.callStatus),
         "дата отправки звонка": person.callSendingTime,
         "дата доставки звонка": person.callDeliveryTime.Valid
           ? person.callDeliveryTime.Time
@@ -59,23 +72,26 @@ const generateExcel = (data: ReportResponse): IPersonMinified[] => {
       });
     });
   } else if (
-    data.history.notificationMethod.toString() ===
-    notificationMethod.call.toString()
+    data?.history?.notificationMethod?.toString() ===
+    notificationMethod?.call?.toString()
   ) {
     data.people.forEach((person) => {
       result.push({
         ФИО: getFullName(person.firstName, person.lastName, person.middleName),
         телефон: person.telephone,
-        "статус звонка": StatusCode(person.callStatus).message,
+        //@ts-ignore
+        "статус звонка": translateToRussianCallStatuses(person.callStatus),
         "дата отправки звонка": person?.callSendingTime,
-        "дата доставки звонка": person?.callDeliveryTime?.Valid
-          ? person?.callDeliveryTime?.Time
+        //@ts-ignore
+        "дата обновления статуса": person.callStatusUpdatetime.Valid
+          ? //@ts-ignore
+            person.callStatusUpdatetime?.Time
           : "--.--.-- / --:--",
       });
     });
   } else if (
-    data.history.notificationMethod.toString() ===
-    notificationMethod.sms.toString()
+    data?.history?.notificationMethod?.toString() ===
+    notificationMethod?.sms?.toString()
   ) {
     data.people.forEach((person) => {
       result.push({

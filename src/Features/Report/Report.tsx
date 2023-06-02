@@ -18,12 +18,13 @@ import {
 type ReportProp = {
   report: ReportResponse;
   count: Number;
+  setReportData: React.Dispatch<React.SetStateAction<any[] | null>>;
 };
 
 export const Report = (props: ReportProp) => {
   const report = props.report;
-  const [smsStatus, setSmsStatus] = useState(0);
-  const [callStatus, setCallStatus] = useState(0);
+  const [smsStatus, setSmsStatus] = useState<any>(0);
+  const [callStatus, setCallStatus] = useState<any>(0);
   const [query, setQuery] = useState("");
   // console.log(props.count);
   const [successfullCalls] = useState<number>(
@@ -39,6 +40,8 @@ export const Report = (props: ReportProp) => {
     ).length
   );
   let filteredPersons = report.people;
+
+  //NOTE - ДЛЯ ТОГО ЧТО БЫ РАБОТАЛО НУЖНО ЧЕКАТЬ СТРИНГИ
   filteredPersons = filteredPersons.filter((person) => {
     return (
       person.firstName.toLowerCase().includes(query.toLowerCase()) ||
@@ -48,23 +51,30 @@ export const Report = (props: ReportProp) => {
     );
   });
   filteredPersons = filteredPersons.filter((person) => {
-    if (smsStatus === 1) {
+    if (smsStatus === "delivered") {
       return person.smsStatus === 1;
-    } else if (smsStatus === 2) {
-      return person.smsStatus !== 1;
-    } else {
+    } else if (smsStatus === "all") {
       return person;
+    } else if (smsStatus !== "delivered") {
+      //@ts-ignore
+      return person.smsStatus !== "delivered";
     }
   });
   filteredPersons = filteredPersons.filter((person) => {
-    if (callStatus === 1) {
-      return person.callStatus === 1;
-    } else if (smsStatus === 2) {
-      return person.callStatus !== 1;
-    } else {
+    if (callStatus === "success") {
+      //@ts-ignore
+      return person.callStatus === "success";
+    } else if (callStatus === "all") {
       return person;
+    } else if (smsStatus !== "success") {
+      //@ts-ignore
+      return person.callStatus !== "success";
     }
   });
+
+  useEffect(() => {
+    props.setReportData(filteredPersons);
+  }, [smsStatus, callStatus]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.currentTarget.value);
@@ -152,9 +162,10 @@ export const Report = (props: ReportProp) => {
                 as={"div"}
                 value={smsStatus}
                 onChange={setSmsStatus}
+                //ANCHOR ДЛЯ ФИЛЬТРОВ СМС
                 className={"grid grid-rows-3"}
               >
-                <RadioGroup.Option value={0} className={"space-x-2"}>
+                <RadioGroup.Option value={"all"} className={"space-x-2"}>
                   {({ checked }) => (
                     <div className={"flex flex-row items-center"}>
                       <div
@@ -168,7 +179,7 @@ export const Report = (props: ReportProp) => {
                     </div>
                   )}
                 </RadioGroup.Option>
-                <RadioGroup.Option value={1} className={"space-x-2"}>
+                <RadioGroup.Option value={"delivered"} className={"space-x-2"}>
                   {({ checked }) => (
                     <div className={"flex flex-row items-center"}>
                       <div
@@ -182,7 +193,7 @@ export const Report = (props: ReportProp) => {
                     </div>
                   )}
                 </RadioGroup.Option>
-                <RadioGroup.Option value={2} className={"space-x-2"}>
+                <RadioGroup.Option value={"error"} className={"space-x-2"}>
                   {({ checked }) => (
                     <div className={"flex flex-row items-center"}>
                       <div
@@ -209,9 +220,10 @@ export const Report = (props: ReportProp) => {
                 as={"div"}
                 value={callStatus}
                 onChange={setCallStatus}
+                // ANCHOR ДЛЯ ФИЛЬТРОВ ЗВОНКОВ
                 className={"grid grid-rows-3"}
               >
-                <RadioGroup.Option value={0} className={"space-x-2"}>
+                <RadioGroup.Option value={"all"} className={"space-x-2"}>
                   {({ checked }) => (
                     <div className={"flex flex-row items-center"}>
                       <div
@@ -225,7 +237,7 @@ export const Report = (props: ReportProp) => {
                     </div>
                   )}
                 </RadioGroup.Option>
-                <RadioGroup.Option value={1} className={"space-x-2"}>
+                <RadioGroup.Option value={"success"} className={"space-x-2"}>
                   {({ checked }) => (
                     <div className={"flex flex-row items-center"}>
                       <div
@@ -239,7 +251,7 @@ export const Report = (props: ReportProp) => {
                     </div>
                   )}
                 </RadioGroup.Option>
-                <RadioGroup.Option value={2} className={"space-x-2"}>
+                <RadioGroup.Option value={"error"} className={"space-x-2"}>
                   {({ checked }) => (
                     <div className={"flex flex-row items-center"}>
                       <div
@@ -295,7 +307,7 @@ export const Report = (props: ReportProp) => {
                   <h1 className={"col-span-3"}>ЗВОНОК</h1>
                   <h1 className={""}>Статус</h1>
                   <h1 className={""}>Время Отправки</h1>
-                  <h1 className={""}>Время Доставки</h1>
+                  <h1 className={"text-center"}>Время Обновления статуса</h1>
                 </div>
               )}
               {(report.history.notificationMethod.toString() ===
@@ -310,7 +322,7 @@ export const Report = (props: ReportProp) => {
                   <h1 className={"col-span-3"}>СМС</h1>
                   <h1 className={""}>Статус</h1>
                   <h1 className={""}>Время Отправки</h1>
-                  <h1 className={""}>Время Доставки</h1>
+                  <h1 className={"text-center"}>Время Обновления статуса</h1>
                 </div>
               )}
             </div>
@@ -355,18 +367,24 @@ export const Report = (props: ReportProp) => {
                           <h1>
                             {format(
                               parseJSON(person.callSendingTime),
-                              "dd.MM.yyyy / kk:m"
+                              "dd.MM.yyyy / kk:mm"
                             )}
                           </h1>
                         </div>
                         <div>
                           <h1>
-                            {person.callDeliveryTime?.Valid
-                              ? format(
-                                  parseJSON(person.callDeliveryTime.Time),
-                                  "dd.MM.yyyy / kk:m"
-                                )
-                              : "--.--.-- / --:--"}
+                            {
+                              //@ts-ignore
+                              person.callStatusUpdatetime?.Valid
+                                ? format(
+                                    parseJSON(
+                                      //@ts-ignore
+                                      person.callStatusUpdatetime.Time
+                                    ),
+                                    "dd.MM.yyyy / kk:mm"
+                                  )
+                                : "--.--.-- / --:--"
+                            }
                           </h1>
                         </div>
                       </>

@@ -9,6 +9,7 @@ type HistoryListProps = {
   list: any;
 };
 export const HistoryList = (props: HistoryListProps) => {
+  // console.log(props.list);
   return (
     <div
       className={

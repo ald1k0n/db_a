@@ -10,13 +10,15 @@ export const translateToRussianCallStatuses = (code: string) => {
     case "busy":
       return "Занят";
     case "error":
-      return "Ошибка";
+      return "Недоступен";
     case "spam":
       return "Спам";
     case "recalled":
       return "Перезвонили";
     case "no_answer":
       return "Нет ответа";
+    case "in_queue":
+      return "В очереди";
     default:
       return code;
   }

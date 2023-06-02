@@ -16,24 +16,27 @@ export const History = () => {
   const [data, setData] = useState<any[] | null>(null);
 
   const { userToken } = useAppSelector((state) => state.auth);
-
   useEffect(() => {
-    function hist() {
-      if (userToken)
-        trigger("")
-          .then(({ data }) => {
-            setData(data!);
-          })
-          .catch((err) => console.error(err));
+    if (userToken) {
+      trigger("")
+        .then(({ data }) => {
+          setData(data!);
+        })
+        .catch((err) => console.error(err));
     }
-    hist();
-  }, [trigger, data, userToken]);
+  }, [userToken]);
 
-  const clickHandler = () => {
-    if (date) {
-      trigger(format(date, "yyyy-MM-dd"));
-    } else {
-      trigger("");
+  const clickHandler = async () => {
+    try {
+      if (date) {
+        const { data: newData } = await trigger(format(date, "yyyy-MM-dd"));
+        setData(newData!);
+      } else {
+        const { data: newData } = await trigger("");
+        setData(newData!);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
