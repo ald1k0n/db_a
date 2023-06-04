@@ -4,7 +4,7 @@ import { historyAPI } from "../../Entities/History";
 import { Loading } from "../../Shared";
 import { HiOutlinePrinter, HiOutlineXCircle } from "react-icons/hi";
 import { GenerateExcelButtons } from "../../Features/Report/GenerateExcelButtons";
-import ReactToPrint from "react-to-print";
+// import ReactToPrint from "react-to-print";
 import { format } from "date-fns";
 import { NavLink } from "react-router-dom";
 import { Report } from "../../Features";
@@ -12,7 +12,7 @@ import { Report } from "../../Features";
 export const ReportPage = () => {
   let { reportID } = useParams();
 
-  const printRef = useRef(null);
+  // const printRef = useRef(null);
 
   const [trigger, result] = historyAPI.useLazyFetchHistoryByIDQuery();
 
@@ -47,7 +47,7 @@ export const ReportPage = () => {
                   reportData={reportData}
                   data={result.data}
                 />
-                <ReactToPrint
+                {/* <ReactToPrint
                   trigger={() => (
                     <button>
                       <HiOutlinePrinter className={"h-6 w-6"} />
@@ -58,7 +58,7 @@ export const ReportPage = () => {
                     new Date(result.data.history.createdAt),
                     "dd MM yyyy"
                   )}`}
-                />
+                /> */}
               </div>
               <div>
                 Подробный отчет за{" "}

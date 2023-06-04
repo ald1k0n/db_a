@@ -23,8 +23,8 @@ type ReportProp = {
 
 export const Report = (props: ReportProp) => {
   const report = props.report;
-  const [smsStatus, setSmsStatus] = useState<any>(0);
-  const [callStatus, setCallStatus] = useState<any>(0);
+  const [smsStatus, setSmsStatus] = useState<any>("");
+  const [callStatus, setCallStatus] = useState<any>("");
   const [query, setQuery] = useState("");
   // console.log(props.count);
   const [successfullCalls] = useState<number>(
