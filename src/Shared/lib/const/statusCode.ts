@@ -28,6 +28,8 @@ export const translateToRussianSMSCodes = (code: string) => {
   switch (code) {
     case "expired":
       return "Истекло";
+    case "queued":
+      return "В очереди";
     case "delivered":
       return "Доставлено";
     case "undeliverable":

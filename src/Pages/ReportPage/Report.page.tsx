@@ -75,6 +75,7 @@ export const ReportPage = () => {
             setReportData={setReportData}
             report={result.data}
             count={result?.data?.people?.length}
+            history={result?.data?.history}
           />
         </>
       )}

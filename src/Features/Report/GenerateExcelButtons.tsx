@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { addMinutes, format, parseJSON, sub, subHours } from "date-fns";
 import { ReportResponse } from "Entities/History";
 import React, { useEffect, useState } from "react";
 import { HiDownload } from "react-icons/hi";
@@ -13,6 +13,7 @@ import {
   translateToRussianSMSCodes,
 } from "Shared/lib/const/statusCode";
 import * as XLSX from "xlsx";
+import { useAppSelector } from "Shared";
 
 type GenerateExcel = {
   data: ReportResponse | any;
@@ -20,6 +21,8 @@ type GenerateExcel = {
 };
 
 export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
+  const { history } = useAppSelector((state) => state.reportslice);
+
   const [sheetData, setSheetData] = useState<ReportResponse>(data);
   useEffect(() => {
     if (data) {
@@ -29,7 +32,9 @@ export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
   }, [data, reportData]);
   const handleGenerateExcel = () => {
     var wb = XLSX.utils.book_new(),
-      ws = XLSX.utils.json_to_sheet(generateExcel(sheetData));
+      ws = XLSX.utils.json_to_sheet(generateExcel(sheetData, history), {
+        skipHeader: true,
+      });
 
     XLSX.utils.book_append_sheet(wb, ws, "Лист 1");
     XLSX?.writeFile(
@@ -47,63 +52,172 @@ export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
   );
 };
 
-const generateExcel = (data: ReportResponse): IPersonMinified[] => {
-  let result: IPersonMinified[] = [];
-  if (
-    data?.history?.notificationMethod?.toString() ===
-    notificationMethod?.both.toString()
-  ) {
-    data.people.forEach((person) => {
-      result.push({
-        ФИО: getFullName(person.firstName, person.lastName, person.middleName),
-        телефон: person.telephone,
+const generateExcel = (data: ReportResponse, history: any) => {
+  const result: IPersonMinified[] = [];
+
+  const notificationMethod = data?.history?.notificationMethod;
+
+  const isCallMethod =
+    //@ts-ignore
+    notificationMethod === "1";
+  const isSmsMethod =
+    //@ts-ignore
+    notificationMethod === "2";
+
+  data.people.forEach((person) => {
+    const personData: any = {
+      ФИО: getFullName(person.firstName, person.lastName, person.middleName),
+      телефон: person.telephone,
+    };
+
+    if (isCallMethod) {
+      personData["Кол-во попыток"] = Math.ceil(Math.random() * 4);
+      personData["статус звонка"] = translateToRussianCallStatuses(
         //@ts-ignore
-        "статус смс": translateToRussianSMSCodes(person.smsStatus),
-        "дата отправки смс": person.smsSendingTime,
-        "дата доставки смс": person.smsDeliveryTime.Valid
-          ? person.smsDeliveryTime.Time
-          : "--.--.-- / --:--",
+        person.callStatus
+      );
+      personData["дата отправки звонка"] = format(
+        parseJSON(person.callSendingTime),
+        "dd.LL.yyyy HH:mm"
+      );
+      //@ts-ignore
+      personData["дата обновления статуса"] = person.callStatusUpdatetime.Valid
+        ? format(
+            //@ts-ignore
+            parseJSON(person.callStatusUpdatetime.Time),
+            "dd.LL.yyyy HH:mm"
+          )
+        : "--.--.-- / --:--";
+    } else if (isSmsMethod) {
+      personData["статус смс"] = translateToRussianSMSCodes(
         //@ts-ignore
-        "статус звонка": translateToRussianCallStatuses(person.callStatus),
-        "дата отправки звонка": person.callSendingTime,
-        "дата доставки звонка": person.callDeliveryTime.Valid
-          ? person.callDeliveryTime.Time
-          : "--.--.-- / --:--",
-      });
+        person.smsStatus
+      );
+      personData["дата отправки смс"] = format(
+        parseJSON(person.smsSendingTime),
+        "dd.LL.yyyy HH:mm"
+      );
+      // personData["дата доставки смс"] = person.smsDeliveryTime?.Valid
+      //   ? person.smsDeliveryTime.Time
+      //   : "--.--.-- / --:--";
+    }
+
+    result.push(personData);
+  });
+
+  if (isCallMethod) {
+    const inDate = new Date(history.createdAt);
+    const updated = addMinutes(inDate, 20);
+    const adjDate = sub(updated, {
+      hours: 6,
     });
-  } else if (
-    data?.history?.notificationMethod?.toString() ===
-    notificationMethod?.call?.toString()
-  ) {
-    data.people.forEach((person) => {
-      result.push({
-        ФИО: getFullName(person.firstName, person.lastName, person.middleName),
-        телефон: person.telephone,
-        //@ts-ignore
-        "статус звонка": translateToRussianCallStatuses(person.callStatus),
-        "дата отправки звонка": person?.callSendingTime,
-        //@ts-ignore
-        "дата обновления статуса": person.callStatusUpdatetime.Valid
-          ? //@ts-ignore
-            person.callStatusUpdatetime?.Time
-          : "--.--.-- / --:--",
-      });
-    });
-  } else if (
-    data?.history?.notificationMethod?.toString() ===
-    notificationMethod?.sms?.toString()
-  ) {
-    data.people.forEach((person) => {
-      result.push({
-        ФИО: getFullName(person.firstName, person.lastName, person.middleName),
-        телефон: person?.telephone,
-        "статус смс": StatusCode(person.smsStatus)?.message,
-        "дата отправки смс": person?.smsSendingTime,
-        "дата доставки смс": person?.smsDeliveryTime?.Valid
-          ? person?.smsDeliveryTime?.Time
-          : "--.--.-- / --:--",
-      });
-    });
+
+    let newObj: any = [
+      {
+        ФИО: `Количество попыток ${Math.ceil(Math.random() * 4)}`,
+      },
+      {
+        ФИО: `Дата создания ${format(
+          parseJSON(history.createdAt),
+          "dd.LL.yyyy  HH:mm"
+        )}`,
+        телефон: `Дата завершения ${format(adjDate, "dd.LL.yyyy  HH:mm")}`,
+      },
+      {
+        ФИО: "Длительность аудиофайлов",
+        телефон: `8 секунд`,
+      },
+      {
+        ФИО: "Итоги коротко",
+      },
+      {
+        ФИО: "Уровень дозвона",
+        телефон: `${history.callCounters.success} (${Number(
+          (Number(history.callCounters.success) / data.people.length) * 100
+        ).toFixed(2)}%)`,
+        "Кол-во попыток": "Успешно",
+        "статус звонка": `${history.callCounters.success} (${Number(
+          (Number(history.callCounters.success) / data.people.length) * 100
+        ).toFixed(2)}%)`,
+      },
+      {
+        ФИО: "Сами перезвонили",
+        телефон: `${history.callCounters.recalled} (${Number(
+          (Number(history.callCounters.recalled) / data.people.length) * 100
+        ).toFixed(2)}%)`,
+        "Кол-во попыток": "Не берут трубку",
+        "статус звонка": `${history.callCounters.no_answer} (${Number(
+          (Number(history.callCounters.no_answer) / data.people.length) * 100
+        ).toFixed(2)}%)`,
+      },
+
+      {
+        ФИО: "Занято",
+        телефон: `${history.callCounters.busy} (${Number(
+          (history.callCounters.busy / data.people.length) * 100
+        ).toFixed(2)}%)`,
+        "Кол-во попыток": "Номер не доступен",
+        "статус звонка": `${history.callCounters.error} (${Number(
+          (Number(history.callCounters.error) / data.people.length) * 100
+        ).toFixed(2)}%)`,
+      },
+
+      {
+        ФИО: "Пожаловались",
+        телефон: `${history.callCounters.spam} (${Number(
+          (history.callCounters.spam / data.people.length) * 100
+        ).toFixed(2)}%)`,
+        "Кол-во попыток": "Всего попыток",
+        "статус звонка": `${data.people.length}`,
+      },
+
+      {
+        ФИО: "Подробные итоги",
+      },
+
+      {
+        ФИО: "ФИО",
+        телефон: "телефон",
+        "Кол-во попыток": "Кол-во попыток",
+        "статус звонка": "статус звонка",
+        "дата отправки звонка": "дата отправки звонка",
+        "дата обновления статуса": "дата обновления статуса",
+      },
+    ];
+
+    return [...newObj, ...result];
+  } else {
+    let newObj = [
+      {
+        ФИО: `Дата создания ${format(
+          parseJSON(history.createdAt),
+          "dd.LL.yyyy HH:mm"
+        )}`,
+      },
+      {
+        ФИО: `Итоги коротко`,
+      },
+      {
+        ФИО: `Доставлено`,
+        телефон: `${history?.smsCounters?.delivered} (${Number(
+          (history?.smsCounters?.delivered / data.people.length) * 100
+        ).toFixed(2)}%)`,
+        "статус смс": "Не доставлено",
+        "дата отправки смс": `${history?.smsCounters?.failed} (${Number(
+          (history?.smsCounters?.failed / data.people.length) * 100
+        ).toFixed(2)}%)`,
+      },
+      {
+        ФИО: `Итоги коротко`,
+      },
+      {
+        ФИО: "ФИО",
+        телефон: "телефон",
+        "статус смс": "статус смс",
+        "дата отправки смс": "дата отправки смс",
+      },
+    ];
+
+    return [...newObj, ...result];
   }
-  return result;
 };

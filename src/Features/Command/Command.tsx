@@ -174,10 +174,10 @@ export const Command = () => {
                 className={"flex flex-row items-center space-x-4 py-4 px-2.5"}
               >
                 <div className={"flex flex-row justify-end space-x-4"}>
-                  {/* <div className={"flex flex-row space-x-2 items-center"}> */}
-                  {/* <span className={"text-sm"}>SMS</span> */}
-                  {/* <Toggle checked={sms} onChange={setSms} /> */}
-                  {/* </div> */}
+                  <div className={"flex flex-row space-x-2 items-center"}>
+                    <span className={"text-sm"}>SMS</span>
+                    <Toggle checked={sms} onChange={setSms} />
+                  </div>
                   <div className={"flex flex-row space-x-2 items-center"}>
                     <span className={"text-sm"}>Звонок</span>
                     <Toggle checked={call} onChange={setCall} />

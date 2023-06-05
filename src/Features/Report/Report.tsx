@@ -15,22 +15,28 @@ import {
   translateToRussianSMSCodes,
 } from "Shared/lib/const/statusCode";
 
+import { useAppDispatch, useAppSelector } from "../../Shared";
+import { setHistory } from "App/reportslice";
+
 type ReportProp = {
+  history: any;
   report: ReportResponse;
   count: Number;
   setReportData: React.Dispatch<React.SetStateAction<any[] | null>>;
 };
 
 export const Report = (props: ReportProp) => {
+  const dispatch = useAppDispatch();
+
   const report = props.report;
-  const [smsStatus, setSmsStatus] = useState<any>("");
-  const [callStatus, setCallStatus] = useState<any>("");
+  const [smsStatus, setSmsStatus] = useState<any>("all");
+  const [callStatus, setCallStatus] = useState<any>("all");
   const [query, setQuery] = useState("");
-  // console.log(props.count);
   const [successfullCalls] = useState<number>(
     report.people.filter(
-      //@ts-ignore
-      (person) => person.callStatus === "success"
+      (person) =>
+        //@ts-ignore
+        person.callStatus === "success" && person.callStatus === "recalled"
     ).length
   );
   const [deliveredSMS] = useState<number>(
@@ -40,7 +46,9 @@ export const Report = (props: ReportProp) => {
     ).length
   );
   let filteredPersons = report.people;
-
+  useEffect(() => {
+    dispatch(setHistory(props.history));
+  }, [dispatch, props.history]);
   //NOTE - ДЛЯ ТОГО ЧТО БЫ РАБОТАЛО НУЖНО ЧЕКАТЬ СТРИНГИ
   filteredPersons = filteredPersons.filter((person) => {
     return (
@@ -52,7 +60,8 @@ export const Report = (props: ReportProp) => {
   });
   filteredPersons = filteredPersons.filter((person) => {
     if (smsStatus === "delivered") {
-      return person.smsStatus === 1;
+      //@ts-ignore
+      return person.smsStatus === "delivered";
     } else if (smsStatus === "all") {
       return person;
     } else if (smsStatus !== "delivered") {
@@ -113,14 +122,22 @@ export const Report = (props: ReportProp) => {
                 <div>Звонок</div>
                 <div>{`${props?.count}`}</div>
                 <div>
-                  {successfullCalls} (
-                  {((successfullCalls / Number(props.count)) * 100).toFixed(1)}
+                  {props?.history?.callCounters?.success} (
+                  {(
+                    (props?.history?.callCounters?.success /
+                      Number(props.count)) *
+                    100
+                  ).toFixed(1)}
                   %)
                 </div>
                 <div>
-                  {`${Number(props.count) - successfullCalls}`} (
+                  {`${
+                    Number(props.count) - props?.history?.callCounters?.success
+                  }`}{" "}
+                  (
                   {(
-                    ((Number(props.count) - successfullCalls) /
+                    ((Number(props.count) -
+                      props?.history?.callCounters?.success) /
                       Number(props.count)) *
                     100
                   ).toFixed(1)}
@@ -128,22 +145,23 @@ export const Report = (props: ReportProp) => {
                 </div>
               </div>
             )}
-            {(report.history.notificationMethod.toString() ===
-              notificationMethod.both.toString() ||
-              report.history.notificationMethod.toString() ===
-                notificationMethod.sms.toString()) && (
+            {report.history.notificationMethod.toString() === "2" && (
               <div className={"grid grid-cols-4 items-center px-4 bg-gray-100"}>
                 <div>SMS</div>
                 <div>{`${props?.count}`} </div>
                 <div>
-                  {deliveredSMS} (
-                  {((deliveredSMS / Number(props.count)) * 100).toFixed(1)}
+                  {props?.history?.smsCounters?.delivered} (
+                  {(
+                    (props?.history?.smsCounters?.delivered /
+                      Number(props.count)) *
+                    100
+                  ).toFixed(1)}
                   %)
                 </div>
                 <div>
-                  {Number(props.count) - deliveredSMS} (
+                  {props?.history?.smsCounters?.rejected} (
                   {(
-                    ((Number(props.count) - deliveredSMS) /
+                    (props?.history?.smsCounters?.rejected /
                       Number(props.count)) *
                     100
                   ).toFixed(1)}
@@ -363,27 +381,94 @@ export const Report = (props: ReportProp) => {
                             )}
                           </h1>
                         </div>
+
                         <div>
                           <h1>
+                            {/* ANCHOR Проверить потм  */}
+
                             {format(
                               parseJSON(person.callSendingTime),
-                              "dd.MM.yyyy / kk:mm"
+                              "dd.MM.yyyy / HH:mm"
                             )}
                           </h1>
                         </div>
+
                         <div>
                           <h1>
                             {
                               //@ts-ignore
-                              person.callStatusUpdatetime?.Valid
-                                ? format(
-                                    parseJSON(
+                              person.callStatusUpdatetime?.Valid ? (
+                                <>
+                                  {`${
+                                    new Date(
                                       //@ts-ignore
-                                      person.callStatusUpdatetime.Time
-                                    ),
-                                    "dd.MM.yyyy / kk:mm"
-                                  )
-                                : "--.--.-- / --:--"
+                                      person?.callStatusUpdatetime?.Time
+                                    ).getDate() < 10
+                                      ? `0${new Date(
+                                          //@ts-ignore
+                                          person?.callStatusUpdatetime?.Time
+                                        ).getDate()}`
+                                      : new Date(
+                                          //@ts-ignore
+                                          person?.callStatusUpdatetime?.Time
+                                        ).getDate()
+                                  }`}
+                                  {"."}
+                                  {new Date(
+                                    //@ts-ignore
+                                    person?.callStatusUpdatetime?.Time
+                                  ).getMonth() +
+                                    1 <
+                                  10
+                                    ? `0${
+                                        new Date(
+                                          //@ts-ignore
+                                          person?.callStatusUpdatetime?.Time
+                                        ).getMonth() + 1
+                                      }`
+                                    : new Date(
+                                        //@ts-ignore
+                                        person?.callStatusUpdatetime?.Time
+                                      ).getMonth() + 1}
+                                  {"."}
+                                  {new Date(
+                                    //@ts-ignore
+                                    person?.callStatusUpdatetime?.Time
+                                  ).getFullYear()}
+                                  {" / "}{" "}
+                                  {new Date(
+                                    //@ts-ignore
+                                    person?.callStatusUpdatetime?.Time
+                                  ).getHours() -
+                                    6 <
+                                  10
+                                    ? `0${
+                                        new Date(
+                                          //@ts-ignore
+                                          person?.callStatusUpdatetime?.Time
+                                        ).getHours() - 6
+                                      }`
+                                    : new Date(
+                                        //@ts-ignore
+                                        person?.callStatusUpdatetime?.Time
+                                      ).getHours() - 6}
+                                  {":"}
+                                  {new Date(
+                                    //@ts-ignore
+                                    person?.callStatusUpdatetime?.Time
+                                  ).getMinutes() < 10
+                                    ? `0${new Date(
+                                        //@ts-ignore
+                                        person?.callStatusUpdatetime?.Time
+                                      ).getMinutes()}`
+                                    : new Date(
+                                        //@ts-ignore
+                                        person?.callStatusUpdatetime?.Time
+                                      ).getMinutes()}
+                                </>
+                              ) : (
+                                "--.--.-- / --:--"
+                              )
                             }
                           </h1>
                         </div>
