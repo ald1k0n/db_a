@@ -82,11 +82,71 @@ const generateExcel = (data: ReportResponse, history: any) => {
       );
       //@ts-ignore
       personData["дата обновления статуса"] = person.callStatusUpdatetime.Valid
-        ? format(
+        ? //@ts-ignore
+          `${
+            new Date(
+              //@ts-ignore
+              person?.callStatusUpdatetime?.Time
+            ).getDate() < 10
+              ? `0${new Date(
+                  //@ts-ignore
+                  person?.callStatusUpdatetime?.Time
+                ).getDate()}`
+              : new Date(
+                  //@ts-ignore
+                  person?.callStatusUpdatetime?.Time
+                ).getDate()
+          }.${
+            new Date(
+              //@ts-ignore
+              person?.callStatusUpdatetime?.Time
+            ).getMonth() +
+              1 <
+            10
+              ? `0${
+                  new Date(
+                    //@ts-ignore
+                    person?.callStatusUpdatetime?.Time
+                  ).getMonth() + 1
+                }`
+              : new Date(
+                  //@ts-ignore
+                  person?.callStatusUpdatetime?.Time
+                ).getMonth() + 1
+          }.${new Date(
             //@ts-ignore
-            parseJSON(person.callStatusUpdatetime.Time),
-            "dd.LL.yyyy HH:mm"
-          )
+            person?.callStatusUpdatetime?.Time
+          ).getFullYear()} ${
+            new Date(
+              //@ts-ignore
+              person?.callStatusUpdatetime?.Time
+            ).getHours() -
+              6 <
+            10
+              ? `0${
+                  new Date(
+                    //@ts-ignore
+                    person?.callStatusUpdatetime?.Time
+                  ).getHours() - 6
+                }`
+              : new Date(
+                  //@ts-ignore
+                  person?.callStatusUpdatetime?.Time
+                ).getHours() - 6
+          }:${
+            new Date(
+              //@ts-ignore
+              person?.callStatusUpdatetime?.Time
+            ).getMinutes() < 10
+              ? `0${new Date(
+                  //@ts-ignore
+                  person?.callStatusUpdatetime?.Time
+                ).getMinutes()}`
+              : new Date(
+                  //@ts-ignore
+                  person?.callStatusUpdatetime?.Time
+                ).getMinutes()
+          }`
         : "--.--.-- / --:--";
     } else if (isSmsMethod) {
       personData["статус смс"] = translateToRussianSMSCodes(
