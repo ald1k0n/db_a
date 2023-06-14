@@ -96,6 +96,18 @@ export const Command = () => {
   }, [file]);
 
   useEffect(() => {
+    if (sms) {
+      setCall(false);
+    }
+  }, [sms]);
+
+  useEffect(() => {
+    if (call) {
+      setSms(false);
+    }
+  }, [call]);
+
+  useEffect(() => {
     if (
       commandError.length === 0 &&
       notificaionError.length === 0 &&
@@ -159,7 +171,7 @@ export const Command = () => {
             lineHeight={"2px"}
             color={"bg-gray-500"}
           >
-            ПРОВЕРКА ОПОЕЩЕНИЯ ПЕРЕД ОТПРАВКОЙ
+            ПРОВЕРКА ОПОВЕЩЕНИЯ ПЕРЕД ОТПРАВКОЙ
           </Heading>
         </div>
         <div className={"grid grid-cols-4 gap-4"}>
@@ -176,6 +188,7 @@ export const Command = () => {
                 <div className={"flex flex-row justify-end space-x-4"}>
                   <div className={"flex flex-row space-x-2 items-center"}>
                     <span className={"text-sm"}>SMS</span>
+                    {/* ANCHOR SETTER  */}
                     <Toggle checked={sms} onChange={setSms} />
                   </div>
                   <div className={"flex flex-row space-x-2 items-center"}>
