@@ -22,7 +22,7 @@ type GenerateExcel = {
 
 export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
   const { history } = useAppSelector((state) => state.reportslice);
-
+  console.log(history);
   const [sheetData, setSheetData] = useState<ReportResponse>(data);
   useEffect(() => {
     if (data) {
@@ -54,7 +54,7 @@ export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
 
 const generateExcel = (data: ReportResponse, history: any) => {
   const result: IPersonMinified[] = [];
-
+  // console.log(history, "history");
   const notificationMethod = data?.history?.notificationMethod;
 
   const isCallMethod =
@@ -174,7 +174,7 @@ const generateExcel = (data: ReportResponse, history: any) => {
 
     let newObj: any = [
       {
-        ФИО: `Количество попыток ${Math.ceil(Math.random() * 4)}`,
+        ФИО: `Количество попыток 4`,
       },
       {
         ФИО: `Дата создания ${format(
@@ -192,43 +192,54 @@ const generateExcel = (data: ReportResponse, history: any) => {
       },
       {
         ФИО: "Уровень дозвона",
-        телефон: `${history.callCounters.success} (${Number(
-          (Number(history.callCounters.success) / data.people.length) * 100
+        телефон: `${
+          history.callCounters.success + history.callCounters.recalled
+        } (${Number(
+          (Number(
+            history.callCounters.success + history.callCounters.recalled
+          ) /
+            history.callCounters.total) *
+            100
         ).toFixed(2)}%)`,
         "Кол-во попыток": "Успешно",
         "статус звонка": `${history.callCounters.success} (${Number(
-          (Number(history.callCounters.success) / data.people.length) * 100
+          (Number(history.callCounters.success) / history.callCounters.total) *
+            100
         ).toFixed(2)}%)`,
       },
       {
         ФИО: "Сами перезвонили",
         телефон: `${history.callCounters.recalled} (${Number(
-          (Number(history.callCounters.recalled) / data.people.length) * 100
+          (Number(history.callCounters.recalled) / history.callCounters.total) *
+            100
         ).toFixed(2)}%)`,
         "Кол-во попыток": "Не берут трубку",
         "статус звонка": `${history.callCounters.no_answer} (${Number(
-          (Number(history.callCounters.no_answer) / data.people.length) * 100
+          (Number(history.callCounters.no_answer) /
+            history.callCounters.total) *
+            100
         ).toFixed(2)}%)`,
       },
 
       {
         ФИО: "Занято",
         телефон: `${history.callCounters.busy} (${Number(
-          (history.callCounters.busy / data.people.length) * 100
+          (history.callCounters.busy / history.callCounters.total) * 100
         ).toFixed(2)}%)`,
         "Кол-во попыток": "Номер не доступен",
         "статус звонка": `${history.callCounters.error} (${Number(
-          (Number(history.callCounters.error) / data.people.length) * 100
+          (Number(history.callCounters.error) / history.callCounters.total) *
+            100
         ).toFixed(2)}%)`,
       },
 
       {
         ФИО: "Пожаловались",
         телефон: `${history.callCounters.spam} (${Number(
-          (history.callCounters.spam / data.people.length) * 100
+          (history.callCounters.spam / history.callCounters.total) * 100
         ).toFixed(2)}%)`,
         "Кол-во попыток": "Всего попыток",
-        "статус звонка": `${data.people.length}`,
+        "статус звонка": `${history.callCounters.total}`,
       },
 
       {
@@ -260,15 +271,15 @@ const generateExcel = (data: ReportResponse, history: any) => {
       {
         ФИО: `Доставлено`,
         телефон: `${history?.smsCounters?.delivered} (${Number(
-          (history?.smsCounters?.delivered / data.people.length) * 100
+          (history?.smsCounters?.delivered / history?.smsCounters.total) * 100
         ).toFixed(2)}%)`,
         "статус смс": "Не доставлено",
         "дата отправки смс": `${history?.smsCounters?.failed} (${Number(
-          (history?.smsCounters?.failed / data.people.length) * 100
+          (history?.smsCounters?.failed / history?.smsCounters.total) * 100
         ).toFixed(2)}%)`,
       },
       {
-        ФИО: `Итоги коротко`,
+        ФИО: `Подробные итоги`,
       },
       {
         ФИО: "ФИО",

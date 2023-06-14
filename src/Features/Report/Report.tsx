@@ -32,19 +32,7 @@ export const Report = (props: ReportProp) => {
   const [smsStatus, setSmsStatus] = useState<any>("all");
   const [callStatus, setCallStatus] = useState<any>("all");
   const [query, setQuery] = useState("");
-  const [successfullCalls] = useState<number>(
-    report.people.filter(
-      (person) =>
-        //@ts-ignore
-        person.callStatus === "success" && person.callStatus === "recalled"
-    ).length
-  );
-  const [deliveredSMS] = useState<number>(
-    report.people.filter(
-      //@ts-ignore
-      (person) => person.smsStatus === "delivered"
-    ).length
-  );
+
   let filteredPersons = report.people;
   useEffect(() => {
     dispatch(setHistory(props.history));
@@ -120,7 +108,8 @@ export const Report = (props: ReportProp) => {
                 notificationMethod.call.toString()) && (
               <div className={"grid grid-cols-4 items-center px-4 bg-gray-100"}>
                 <div>Звонок</div>
-                <div>{`${props?.count}`}</div>
+
+                <div>{`${props?.history?.callCounters.total}`}</div>
                 <div>
                   {props?.history?.callCounters?.success} (
                   {(
@@ -148,7 +137,7 @@ export const Report = (props: ReportProp) => {
             {report.history.notificationMethod.toString() === "2" && (
               <div className={"grid grid-cols-4 items-center px-4 bg-gray-100"}>
                 <div>SMS</div>
-                <div>{`${props?.count}`} </div>
+                <div>{`${props?.history?.smsCounters.total}`} </div>
                 <div>
                   {props?.history?.smsCounters?.delivered} (
                   {(
@@ -324,8 +313,8 @@ export const Report = (props: ReportProp) => {
                 >
                   <h1 className={"col-span-3"}>ЗВОНОК</h1>
                   <h1 className={""}>Статус</h1>
-                  <h1 className={""}>Время Отправки</h1>
-                  <h1 className={"text-center"}>Время Обновления статуса</h1>
+                  <h1 className={""}>Время отправки</h1>
+                  <h1 className={"text-center"}>Время обновления статуса</h1>
                 </div>
               )}
               {(report.history.notificationMethod.toString() ===
@@ -339,8 +328,8 @@ export const Report = (props: ReportProp) => {
                 >
                   <h1 className={"col-span-3"}>СМС</h1>
                   <h1 className={""}>Статус</h1>
-                  <h1 className={""}>Время Отправки</h1>
-                  <h1 className={"text-center"}>Время Обновления статуса</h1>
+                  <h1 className={""}>Время отправки</h1>
+                  <h1 className={"text-center"}>Время изменения статуса</h1>
                 </div>
               )}
             </div>
