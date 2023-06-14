@@ -428,9 +428,7 @@ export const Report = (props: ReportProp) => {
                                   {new Date(
                                     //@ts-ignore
                                     person?.callStatusUpdatetime?.Time
-                                  ).getHours() -
-                                    6 <
-                                  10
+                                  ).getHours() < 10
                                     ? `0${
                                         new Date(
                                           //@ts-ignore
@@ -482,18 +480,24 @@ export const Report = (props: ReportProp) => {
                           <h1>
                             {format(
                               parseJSON(person.smsSendingTime),
-                              "dd.MM.yyyy / kk:mm"
+                              "dd.MM.yyyy / HH:mm"
                             )}
                           </h1>
                         </div>
                         <div>
                           <h1>
-                            {person.smsDeliveryTime?.Valid
-                              ? format(
-                                  parseJSON(person.smsDeliveryTime.Time),
-                                  "dd.MM.yyyy / kk:mm"
-                                )
-                              : "--.--.-- / --:--"}
+                            {
+                              //@ts-ignore
+                              person?.callStatusUpdatetime?.Time
+                                ? format(
+                                    parseJSON(
+                                      //@ts-ignore
+                                      person?.callStatusUpdatetime?.Time
+                                    ),
+                                    "dd.MM.yyyy / HH:mm"
+                                  )
+                                : "--.--.-- / --:--"
+                            }
                           </h1>
                         </div>
                       </>

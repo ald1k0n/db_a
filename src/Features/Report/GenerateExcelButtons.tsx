@@ -22,7 +22,6 @@ type GenerateExcel = {
 
 export const GenerateExcelButtons = ({ data, reportData }: GenerateExcel) => {
   const { history } = useAppSelector((state) => state.reportslice);
-  console.log(history);
   const [sheetData, setSheetData] = useState<ReportResponse>(data);
   useEffect(() => {
     if (data) {
@@ -120,9 +119,7 @@ const generateExcel = (data: ReportResponse, history: any) => {
             new Date(
               //@ts-ignore
               person?.callStatusUpdatetime?.Time
-            ).getHours() -
-              6 <
-            10
+            ).getHours() < 10
               ? `0${
                   new Date(
                     //@ts-ignore
@@ -171,7 +168,6 @@ const generateExcel = (data: ReportResponse, history: any) => {
     const adjDate = sub(updated, {
       hours: 6,
     });
-
     let newObj: any = [
       {
         ФИО: `Количество попыток 4`,
@@ -181,7 +177,7 @@ const generateExcel = (data: ReportResponse, history: any) => {
           parseJSON(history.createdAt),
           "dd.LL.yyyy  HH:mm"
         )}`,
-        телефон: `Дата завершения ${format(adjDate, "dd.LL.yyyy  HH:mm")}`,
+        телефон: `Дата завершения ${format(updated, "dd.LL.yyyy  HH:mm")}`,
       },
       {
         ФИО: "Длительность аудиофайлов",
