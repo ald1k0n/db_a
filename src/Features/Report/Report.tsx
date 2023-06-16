@@ -485,14 +485,15 @@ export const Report = (props: ReportProp) => {
                           </h1>
                         </div>
                         <div>
+                          {/* ANCHOR хз мб вот это и есть ответ */}
                           <h1>
                             {
                               //@ts-ignore
-                              person?.callStatusUpdatetime?.Time
+                              person?.smsStatusUpdatetime?.Time
                                 ? format(
                                     parseJSON(
                                       //@ts-ignore
-                                      person?.callStatusUpdatetime?.Time
+                                      person?.smsStatusUpdatetime?.Time
                                     ),
                                     "dd.MM.yyyy / HH:mm"
                                   )
