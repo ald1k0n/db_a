@@ -383,12 +383,7 @@ export const Report = (props: ReportProp) => {
                         </div>
 
                         <div>
-                          {format(
-                            //@ts-ignore
-                            parseJSON(person.callStatusUpdatetime.Time),
-                            "dd.MM.yyyy / HH:mm"
-                          )}
-                          {/* <h1>
+                          <h1>
                             {
                               //@ts-ignore
                               person.callStatusUpdatetime?.Valid ? (
@@ -433,7 +428,9 @@ export const Report = (props: ReportProp) => {
                                   {new Date(
                                     //@ts-ignore
                                     person?.callStatusUpdatetime?.Time
-                                  ).getHours() < 10
+                                  ).getHours() -
+                                    6 <
+                                  10
                                     ? `0${
                                         new Date(
                                           //@ts-ignore
@@ -462,7 +459,7 @@ export const Report = (props: ReportProp) => {
                                 "--.--.-- / --:--"
                               )
                             }
-                          </h1> */}
+                          </h1>
                         </div>
                       </>
                     )}
@@ -492,7 +489,7 @@ export const Report = (props: ReportProp) => {
                         <div>
                           {/* ANCHOR хз мб вот это и есть ответ */}
                           <h1>
-                            {
+                            {/* {
                               //@ts-ignore
                               person?.smsStatusUpdatetime?.Time
                                 ? format(
@@ -503,7 +500,71 @@ export const Report = (props: ReportProp) => {
                                     "dd.MM.yyyy / HH:mm"
                                   )
                                 : "--.--.-- / --:--"
-                            }
+                            } */}
+                            {new Date(
+                              //@ts-ignore
+                              person?.smsStatusUpdatetime?.Time
+                            ).getDate() < 10
+                              ? `0${new Date(
+                                  //@ts-ignore
+                                  person?.smsStatusUpdatetime?.Time
+                                ).getDate()}`
+                              : new Date(
+                                  //@ts-ignore
+                                  person?.smsStatusUpdatetime?.Time
+                                ).getDate()}
+                            .
+                            {new Date(
+                              //@ts-ignore
+                              person?.smsStatusUpdatetime?.Time
+                            ).getMonth() +
+                              1 <
+                            10
+                              ? `0${
+                                  new Date(
+                                    //@ts-ignore
+                                    person?.smsStatusUpdatetime?.Time
+                                  ).getMonth() + 1
+                                }`
+                              : new Date(
+                                  //@ts-ignore
+                                  person?.smsStatusUpdatetime?.Time
+                                ).getMonth() + 1}
+                            .
+                            {new Date(
+                              //@ts-ignore
+                              person?.smsStatusUpdatetime?.Time
+                            ).getFullYear()}
+                            {" / "}
+                            {new Date(
+                              //@ts-ignore
+                              person?.smsStatusUpdatetime?.Time
+                            ).getHours() -
+                              6 <
+                            10
+                              ? `0${
+                                  new Date(
+                                    //@ts-ignore
+                                    person?.smsStatusUpdatetime?.Time
+                                  ).getHours() - 6
+                                }`
+                              : new Date(
+                                  //@ts-ignore
+                                  person?.smsStatusUpdatetime?.Time
+                                ).getHours() - 6}
+                            :
+                            {new Date(
+                              //@ts-ignore
+                              person?.smsStatusUpdatetime?.Time
+                            ).getMinutes() < 10
+                              ? `0${new Date(
+                                  //@ts-ignore
+                                  person?.smsStatusUpdatetime?.Time
+                                ).getMinutes()}`
+                              : new Date(
+                                  //@ts-ignore
+                                  person?.smsStatusUpdatetime?.Time
+                                ).getMinutes()}
                           </h1>
                         </div>
                       </>
