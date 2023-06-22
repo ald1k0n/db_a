@@ -383,7 +383,12 @@ export const Report = (props: ReportProp) => {
                         </div>
 
                         <div>
-                          <h1>
+                          {format(
+                            //@ts-ignore
+                            parseJSON(person.callStatusUpdatetime.Time),
+                            "dd.MM.yyyy / HH:mm"
+                          )}
+                          {/* <h1>
                             {
                               //@ts-ignore
                               person.callStatusUpdatetime?.Valid ? (
@@ -457,7 +462,7 @@ export const Report = (props: ReportProp) => {
                                 "--.--.-- / --:--"
                               )
                             }
-                          </h1>
+                          </h1> */}
                         </div>
                       </>
                     )}
