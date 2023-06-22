@@ -12,7 +12,7 @@ export const translateToRussianCallStatuses = (code: string) => {
     case "error":
       return "Недоступен";
     case "spam":
-      return "Спам";
+      return "Пожаловались";
     case "recalled":
       return "Перезвонили";
     case "no_answer":
@@ -34,6 +34,8 @@ export const translateToRussianSMSCodes = (code: string) => {
       return "Доставлено";
     case "undeliverable":
       return "Не отправимо";
+    case "sent":
+      return "Отправлено";
     default:
       return code;
   }
