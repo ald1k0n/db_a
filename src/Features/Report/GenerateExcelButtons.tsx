@@ -119,7 +119,9 @@ const generateExcel = (data: ReportResponse, history: any) => {
             new Date(
               //@ts-ignore
               person?.callStatusUpdatetime?.Time
-            ).getHours() < 10
+            ).getHours() -
+              6 <
+            10
               ? `0${
                   new Date(
                     //@ts-ignore
